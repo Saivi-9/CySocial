@@ -1,0 +1,1 @@
+- [CySocial site architecture](cysocial-site.md) — full single-page agency site in artifacts/cysocial; React+Vite, pure CSS, no Tailwind.

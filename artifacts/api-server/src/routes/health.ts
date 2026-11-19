@@ -8,4 +8,12 @@ router.get("/healthz", (_req, res) => {
   res.json(data);
 });
 
+router.get("/meta", (_req, res) => {
+  res.json({
+    service: "CySocial Agency API",
+    status: "ok",
+    supportedLocales: ["tr", "en", "ru", "ar"],
+  });
+});
+
 export default router;

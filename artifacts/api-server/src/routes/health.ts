@@ -16,4 +16,18 @@ router.get("/meta", (_req, res) => {
   });
 });
 
+router.get("/services", (_req, res) => {
+  res.json({
+    agency: "CySocial",
+    region: "Northern Cyprus (KKTC)",
+    supportedLocales: ["tr", "en", "ru", "ar"],
+    services: [
+      { slug: "social-media-management", category: "Social Growth", bilingualSupport: true },
+      { slug: "content-production", category: "Creative Studio", bilingualSupport: true },
+      { slug: "paid-growth-campaigns", category: "Performance Ads", bilingualSupport: true },
+      { slug: "brand-strategy", category: "Identity & Positioning", bilingualSupport: true },
+    ],
+  });
+});
+
 export default router;

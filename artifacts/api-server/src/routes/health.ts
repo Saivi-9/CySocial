@@ -43,20 +43,26 @@ const AGENCY_SERVICES = [
   },
 ] as const;
 
-router.get("/services", (_req, res) => {
+router.get("/services", (req, res) => {
+  const rawCategory = typeof req.query.category === "string" ? req.query.category.trim().toLowerCase() : "";
+  const filtered = rawCategory
+    ? AGENCY_SERVICES.filter((s) => s.category.toLowerCase() === rawCategory)
+    : AGENCY_SERVICES;
+
   res.json({
     agency: "CySocial",
     region: "Northern Cyprus (KKTC)",
     supportedLocales: ["tr", "en", "ru", "ar"],
-    services: AGENCY_SERVICES,
+    totalServices: filtered.length,
+    services: filtered,
   });
 });
 
 router.get("/services/:slug", (req, res) => {
-  const { slug } = req.params;
-  const match = AGENCY_SERVICES.find((s) => s.slug === slug);
+  const normalizedSlug = req.params.slug.trim().toLowerCase();
+  const match = AGENCY_SERVICES.find((s) => s.slug === normalizedSlug);
   if (!match) {
-    res.status(404).json({ error: "Service not found", slug });
+    res.status(404).json({ error: "Service not found", slug: normalizedSlug });
     return;
   }
   res.json({

@@ -45,14 +45,22 @@ const AGENCY_SERVICES = [
 
 router.get("/services", (req, res) => {
   const rawCategory = typeof req.query.category === "string" ? req.query.category.trim().toLowerCase() : "";
-  const filtered = rawCategory
-    ? AGENCY_SERVICES.filter((s) => s.category.toLowerCase() === rawCategory)
-    : AGENCY_SERVICES;
+  const rawQuery = typeof req.query.q === "string" ? req.query.q.trim().toLowerCase() : "";
+  const filtered = AGENCY_SERVICES.filter((s) => {
+    const matchesCategory = !rawCategory || s.category.toLowerCase() === rawCategory;
+    const matchesQuery =
+      !rawQuery ||
+      s.slug.toLowerCase().includes(rawQuery) ||
+      s.category.toLowerCase().includes(rawQuery) ||
+      s.deliverables.some((d) => d.toLowerCase().includes(rawQuery));
+    return matchesCategory && matchesQuery;
+  });
 
   res.json({
     agency: "CySocial",
     region: "Northern Cyprus (KKTC)",
     supportedLocales: ["tr", "en", "ru", "ar"],
+    categories: Array.from(new Set(AGENCY_SERVICES.map((s) => s.category))),
     totalServices: filtered.length,
     services: filtered,
   });

@@ -46,15 +46,22 @@ const AGENCY_SERVICES = [
 router.get("/services", (req, res) => {
   const rawCategory = typeof req.query.category === "string" ? req.query.category.trim().toLowerCase() : "";
   const rawQuery = typeof req.query.q === "string" ? req.query.q.trim().toLowerCase() : "";
+  const rawBilingual = typeof req.query.bilingual === "string" ? req.query.bilingual.trim().toLowerCase() : "";
   const filtered = AGENCY_SERVICES.filter((s) => {
     const matchesCategory = !rawCategory || s.category.toLowerCase() === rawCategory;
+    const matchesBilingual =
+      !rawBilingual ||
+      (rawBilingual === "true" && s.bilingualSupport) ||
+      (rawBilingual === "false" && !s.bilingualSupport);
     const matchesQuery =
       !rawQuery ||
       s.slug.toLowerCase().includes(rawQuery) ||
       s.category.toLowerCase().includes(rawQuery) ||
       s.deliverables.some((d) => d.toLowerCase().includes(rawQuery));
-    return matchesCategory && matchesQuery;
+    return matchesCategory && matchesBilingual && matchesQuery;
   });
+
+  const totalDeliverables = filtered.reduce((acc, s) => acc + s.deliverables.length, 0);
 
   res.json({
     agency: "CySocial",
@@ -62,6 +69,7 @@ router.get("/services", (req, res) => {
     supportedLocales: ["tr", "en", "ru", "ar"],
     categories: Array.from(new Set(AGENCY_SERVICES.map((s) => s.category))),
     totalServices: filtered.length,
+    totalDeliverables,
     services: filtered,
   });
 });

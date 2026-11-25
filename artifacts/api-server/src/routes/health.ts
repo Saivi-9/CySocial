@@ -62,12 +62,17 @@ router.get("/services", (req, res) => {
   });
 
   const totalDeliverables = filtered.reduce((acc, s) => acc + s.deliverables.length, 0);
+  const categoryCounts = filtered.reduce<Record<string, number>>((acc, s) => {
+    acc[s.category] = (acc[s.category] ?? 0) + 1;
+    return acc;
+  }, {});
 
   res.json({
     agency: "CySocial",
     region: "Northern Cyprus (KKTC)",
     supportedLocales: ["tr", "en", "ru", "ar"],
     categories: Array.from(new Set(AGENCY_SERVICES.map((s) => s.category))),
+    categoryCounts,
     totalServices: filtered.length,
     totalDeliverables,
     services: filtered,

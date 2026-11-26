@@ -47,21 +47,25 @@ router.get("/services", (req, res) => {
   const rawCategory = typeof req.query.category === "string" ? req.query.category.trim().toLowerCase() : "";
   const rawQuery = typeof req.query.q === "string" ? req.query.q.trim().toLowerCase() : "";
   const rawBilingual = typeof req.query.bilingual === "string" ? req.query.bilingual.trim().toLowerCase() : "";
+  const parsedMinDeliverables = typeof req.query.minDeliverables === "string" ? Number.parseInt(req.query.minDeliverables, 10) : 0;
+  const minDeliverables = Number.isFinite(parsedMinDeliverables) && parsedMinDeliverables > 0 ? parsedMinDeliverables : 0;
   const filtered = AGENCY_SERVICES.filter((s) => {
     const matchesCategory = !rawCategory || s.category.toLowerCase() === rawCategory;
     const matchesBilingual =
       !rawBilingual ||
       (rawBilingual === "true" && s.bilingualSupport) ||
       (rawBilingual === "false" && !s.bilingualSupport);
+    const matchesMinDeliverables = s.deliverables.length >= minDeliverables;
     const matchesQuery =
       !rawQuery ||
       s.slug.toLowerCase().includes(rawQuery) ||
       s.category.toLowerCase().includes(rawQuery) ||
       s.deliverables.some((d) => d.toLowerCase().includes(rawQuery));
-    return matchesCategory && matchesBilingual && matchesQuery;
+    return matchesCategory && matchesBilingual && matchesMinDeliverables && matchesQuery;
   });
 
   const totalDeliverables = filtered.reduce((acc, s) => acc + s.deliverables.length, 0);
+  const bilingualServiceCount = filtered.filter((s) => s.bilingualSupport).length;
   const categoryCounts = filtered.reduce<Record<string, number>>((acc, s) => {
     acc[s.category] = (acc[s.category] ?? 0) + 1;
     return acc;
@@ -74,6 +78,7 @@ router.get("/services", (req, res) => {
     categories: Array.from(new Set(AGENCY_SERVICES.map((s) => s.category))),
     categoryCounts,
     totalServices: filtered.length,
+    bilingualServiceCount,
     totalDeliverables,
     services: filtered,
   });

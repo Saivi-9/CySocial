@@ -65,6 +65,8 @@ router.get("/services", (req, res) => {
   });
 
   const totalDeliverables = filtered.reduce((acc, s) => acc + s.deliverables.length, 0);
+  const averageDeliverablesPerService =
+    filtered.length > 0 ? Number((totalDeliverables / filtered.length).toFixed(2)) : 0;
   const bilingualServiceCount = filtered.filter((s) => s.bilingualSupport).length;
   const categoryCounts = filtered.reduce<Record<string, number>>((acc, s) => {
     acc[s.category] = (acc[s.category] ?? 0) + 1;
@@ -80,6 +82,7 @@ router.get("/services", (req, res) => {
     totalServices: filtered.length,
     bilingualServiceCount,
     totalDeliverables,
+    averageDeliverablesPerService,
     services: filtered,
   });
 });
@@ -94,6 +97,7 @@ router.get("/services/:slug", (req, res) => {
   res.json({
     agency: "CySocial",
     supportedLocales: ["tr", "en", "ru", "ar"],
+    deliverableCount: match.deliverables.length,
     service: match,
   });
 });
